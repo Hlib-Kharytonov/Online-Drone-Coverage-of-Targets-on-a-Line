@@ -124,8 +124,8 @@ class Drone:
         c = math.tan(self.alpha)
         k= math.tan(self.beta)
         
-        median = statistics.mean(self.drone_memory)
-        direction = 1 if median >= self.x else -1
+        mean = statistics.mean(self.drone_memory)
+        direction = 1 if mean >= self.x else -1
      
         if direction == 1:
             y_left = (self.x - L - self.y * k) / (c - k)
@@ -139,7 +139,7 @@ class Drone:
         target_x_final = self.x + direction * (target_y - self.y) * k
         self.move_zigzag(target_x_final, target_y)
         
-    def learning_straight_up_algorithm(self, target_x):
+    def learning_beta_up_algorithm(self, target_x):
         
         self.drone_memory.append(target_x)
         L = self.min_x_seen = min(self.min_x_seen,target_x)
@@ -153,22 +153,66 @@ class Drone:
         c= math.tan(self.alpha)
         k= math.tan(self.beta)
         
-        apex_x = (self.min_x_seen + self.max_x_seen) / 2.0
-        direction = 1 if apex_x > self.x else -1
-        
+         
         mean = statistics.mean(self.drone_memory)
+        direction = 1 if mean >= self.x else -1
         
-        if (self.x >= mean and mean >= apex_x) or (self.x <= mean and mean <= apex_x) :
-            x = mean
-            if direction == 1:
-                
-            else:
-                
+        if direction == 1:
+            y_left = (self.x - L - self.y * k) / (c - k)
+            y_right = (R - self.x + self.y * k) / (c + k)
+        else:
+            y_left = (self.x - L + self.y * k) / (c + k)
+            y_right = (R - self.x - self.y * k) / (c - k)
+            
+        target_y = max(max(y_left, y_right), self.y)
+
+        x_beta = self.x + direction * (target_y - self.y) * k
+        
+        
+        x = mean
+        
+        if (self.x <= mean and mean <= x_beta):
+            y = (R - x)/c
+            self.move_zigzag(x,y)
+        elif (x_beta <= mean and mean <= self.x):
+            y = (x-L)/c
             self.move_zigzag(x,y)
         else:
             self.beta_hedge_algorithm(target_x)
         return
         
         
+        
+    def learning_greedy_up_algorithm(self, target_x):
+        
+        self.drone_memory.append(target_x)
+        L = self.min_x_seen = min(self.min_x_seen,target_x)
+        R = self.max_x_seen = max(self.max_x_seen,target_x)
+        
+        current_coverage = self.get_coverage_radius()
+        
+        if self.x - current_coverage <= self.min_x_seen and self.x + current_coverage >= self.max_x_seen:
+            return
+        
+        c= math.tan(self.alpha)
+        k= math.tan(self.beta)
+        
+         
+        mean = statistics.mean(self.drone_memory)
+        
+        apex_x = (self.min_x_seen + self.max_x_seen) / 2.0
+        
+        
+        x = mean
+        
+        if (self.x <= mean and mean <= apex_x):
+            y = (R - x)/c
+            self.move_zigzag(x,y)
+        elif (apex_x <= mean and mean <= self.x):
+            y = (x-L)/c
+            self.move_zigzag(x,y)
+        else:
+            self.beta_hedge_algorithm(target_x)
+        return
         
         

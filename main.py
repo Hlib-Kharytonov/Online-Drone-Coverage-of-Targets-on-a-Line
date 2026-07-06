@@ -6,7 +6,7 @@ import math
 if __name__ == "__main__":
     print("=== test simulation ===")
     field = Environment.Environment()
-    field.spawn_requests(nb_requests=100, mu=100.0, sig=100.0)
+    field.spawn_requests(nb_requests=1000, mu=100.0, sig=100.0)
     
     print(f"{len(field.requests)} requests has been generated. Their coordinatest:") # test the order of points
     for i, req in enumerate(field.requests):
@@ -15,7 +15,7 @@ if __name__ == "__main__":
        
     print("=== STRAIGHT-UP algorithm test ===")
     for i, req in enumerate(field.requests):
-        print(f"iteration {i}:")
+        # print(f"iteration {i}:")
         field.drone.straight_up_algorithm(req.x)
         
     n=len(field.requests)
@@ -31,7 +31,7 @@ if __name__ == "__main__":
     field.drone.reset()
     print("=== GREEDY algorithm test ===")
     for i, req in enumerate(field.requests):
-        print(f"iteration {i}:")
+        # print(f"iteration {i}:")
         field.drone.greedy_algorithm(req.x)
 
 
@@ -44,7 +44,7 @@ if __name__ == "__main__":
     field.drone.reset()
     print("=== BETA-HEDGE algorithm test ===")
     for i, req in enumerate(field.requests):
-        print(f"iteration {i}:")
+        # print(f"iteration {i}:")
         field.drone.beta_hedge_algorithm(req.x)
 
 
@@ -58,7 +58,7 @@ if __name__ == "__main__":
     field.drone.reset()
     print("=== MEAN-HEDGE algorithm test ===")
     for i, req in enumerate(field.requests):
-        print(f"iteration {i}:")
+        # print(f"iteration {i}:")
         field.drone.mean_hedge_algo(req.x)
 
 
@@ -70,16 +70,30 @@ if __name__ == "__main__":
     
      
     field.drone.reset()
-    print("=== LEARNING STRAIGHT UP algorithm test ===")
+    print("=== LEARNING BETA UP algorithm test ===")
     for i, req in enumerate(field.requests):
-        print(f"iteration {i}:")
-        field.drone.learning_straight_up_algorithm(req.x)
+        # print(f"iteration {i}:")
+        field.drone.learning_beta_up_algorithm(req.x)
         
     x,y = zip(*field.drone.movement_track)
     
-    dist_LSA = field.drone.total_distance
+    dist_LBA = field.drone.total_distance
     
     plt.plot(x,y,"ro-", label="LEARNING STRAIGHT UP")
+    
+    
+    
+    field.drone.reset()
+    print("=== LEARNING GREEDY UP algorithm test ===")
+    for i, req in enumerate(field.requests):
+        # print(f"iteration {i}:")
+        field.drone.learning_greedy_up_algorithm(req.x)
+        
+    x,y = zip(*field.drone.movement_track)
+    
+    dist_LGA = field.drone.total_distance
+    
+    plt.plot(x,y,"bo-", label="LEARNING STRAIGHT UP")
     
     print("\n" + "="*30)
     print("results::")
@@ -87,7 +101,8 @@ if __name__ == "__main__":
     print(f"GREEDY:       {dist_greedy:.2f}")
     print(f"BETA-HEDGE:   {dist_beta:.2f}")
     print(f"MEAN-HEDGE: {dist_median:.2f}")
-    print(f"LEARNING STRAIGHT UP: {dist_LSA:.2f}")
+    print(f"LEARNING BETA UP: {dist_LBA:.2f}")
+    print(f"LEARNING GREEDY UP: {dist_LGA:.2f}")
     print("="*30 + "\n")
     
     
