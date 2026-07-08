@@ -110,7 +110,7 @@ class Drone:
         self.move_zigzag(target_x_final, target_y)
         
         
-    def mean_hedge_algo(self, target_x):
+    def mean_hedge_algorithm(self, target_x):
         
         self.drone_memory.append(target_x)
         L = self.min_x_seen = min(self.min_x_seen,target_x)
