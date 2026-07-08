@@ -7,7 +7,9 @@ The project focuses on the optimization of drone trajectories for the "Point Cov
 ## Simulation Results & Report
 The comprehensive analysis of the algorithms, trajectory plots, and performance metrics are documented in the PDF report.
 
-👉 [**Open my_simulation.pdf**](./my_simulation.pdf) 👈
+<p align="center">
+  <img src="high_res_plots.png" width="850" alt="Графики эффективности">
+</p>
 
 *(Clicking the link will open the PDF directly inside GitHub's built-in viewer).*
 
