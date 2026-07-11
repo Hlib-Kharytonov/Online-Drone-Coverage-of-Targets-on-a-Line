@@ -130,7 +130,7 @@ if __name__ == "__main__":
         "LEARNING GREEDY UP": [] }
     
     mu_samples = [0, 10, 100, 500, 1000]
-    k = 20 # То самое количество инстансов (удвоенное)
+    k = 100 # То самое количество инстансов (удвоенное)
 
     for mu in mu_samples:
         sigma_stats = {algo: 0 for algo in stats.keys()}
@@ -203,7 +203,6 @@ if __name__ == "__main__":
         "LEARNING GREEDY UP": [] }
     
     sigma_samples = [10, 50, 100, 150, 500]
-    k = 20 # То самое количество инстансов (удвоенное)
 
     for sigma in sigma_samples:
         sigma_stats = {algo: 0 for algo in stats.keys()}
