@@ -96,6 +96,19 @@ if __name__ == "__main__":
     dist_LGA = field.drone.total_distance
     
     ax3.plot(x,y, label="LEARNING GREEDY UP")
+
+
+    field.drone.reset()
+    print("===  MWU algorithm test ===")
+    for i, req in enumerate(field.requests):
+        print(f"iteration {i}:")
+        field.drone.MWU_algorithm(req.x)
+        
+    x,y = zip(*field.drone.movement_track)
+    
+    dist_MWU = field.drone.total_distance
+    
+    ax3.plot(x,y, label="MWU")
     # 
     # print("\n" + "="*30)
     # print("results::")
@@ -127,7 +140,8 @@ if __name__ == "__main__":
         "BETA-HEDGE": [],
         "MEAN-HEDGE": [],
         "LEARNING BETA UP": [],
-        "LEARNING GREEDY UP": [] }
+        "LEARNING GREEDY UP": [],
+        "MWU": [] }
     
     mu_samples = [0, 10, 100, 500, 1000]
     k = 100 # То самое количество инстансов (удвоенное)
@@ -177,6 +191,12 @@ if __name__ == "__main__":
             sigma_stats["LEARNING GREEDY UP"] += field.drone.total_distance
             field.drone.reset()
 
+            # --- MWU ---
+            for req in field.requests:
+                field.drone.MWU_algorithm(req.x)
+            sigma_stats["MWU"] += field.drone.total_distance
+            field.drone.reset()
+
         # 3. Усредняем результаты за k прогонов и добавляем в финальную статистику
         for algo in stats.keys():
             stats[algo].append(sigma_stats[algo] / k)
@@ -200,7 +220,8 @@ if __name__ == "__main__":
         "BETA-HEDGE": [],
         "MEAN-HEDGE": [],
         "LEARNING BETA UP": [],
-        "LEARNING GREEDY UP": [] }
+        "LEARNING GREEDY UP": [],
+        "MWU": []}
     
     sigma_samples = [10, 50, 100, 150, 500]
 
@@ -247,6 +268,11 @@ if __name__ == "__main__":
             for req in field.requests:
                 field.drone.learning_greedy_up_algorithm(req.x)
             sigma_stats["LEARNING GREEDY UP"] += field.drone.total_distance
+            field.drone.reset()
+
+            for req in field.requests:
+                field.drone.MWU_algorithm(req.x)
+            sigma_stats["MWU"] += field.drone.total_distance
             field.drone.reset()
 
         # 3. Усредняем результаты за k прогонов и добавляем в финальную статистику

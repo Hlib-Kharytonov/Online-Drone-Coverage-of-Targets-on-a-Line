@@ -20,6 +20,9 @@ class Drone:
         self.max_x_seen = 0.0
         self.movement_track=[(0,0)]
         self.drone_memory = []
+        self.angles = np.linspace(0, self.alpha * 0.90, 10)
+        self.weights = [1.0] * len(self.angles)
+        self.eta = 0.1
 
         
     def reset(self):
@@ -29,6 +32,9 @@ class Drone:
         self.max_x_seen = 0.0
         self.movement_track=[(0,0)]
         self.drone_memory = []
+        self.weights = [1.0] * len(self.angles)
+        self.beta = math.pi/9.666
+        self.alpha = math.pi/4
         
     def get_coverage_radius(self):
         return self.y * math.tan(self.alpha)
@@ -82,6 +88,8 @@ class Drone:
         
         
     def beta_hedge_algorithm(self, target_x):
+
+        self.beta = math.pi/9.666
         
         L = self.min_x_seen = min(self.min_x_seen,target_x)
         R = self.max_x_seen = max(self.max_x_seen,target_x)
@@ -113,6 +121,8 @@ class Drone:
         
     def mean_hedge_algorithm(self, target_x):
         
+        self.beta = math.pi/9.666
+
         self.drone_memory.append(target_x)
         L = self.min_x_seen = min(self.min_x_seen,target_x)
         R = self.max_x_seen = max(self.max_x_seen,target_x)
@@ -141,6 +151,8 @@ class Drone:
         self.move_zigzag(target_x_final, target_y)
         
     def learning_beta_up_algorithm(self, target_x):
+
+        self.beta = math.pi/9.666
         
         self.drone_memory.append(target_x)
         L = self.min_x_seen = min(self.min_x_seen,target_x)
@@ -219,25 +231,63 @@ class Drone:
 
     def MWU_algorithm(self, target_x):
         self.drone_memory.append(target_x)
-        L = self.min_x_seen = min(self.min_x_seen,target_x)
-        R = self.max_x_seen = max(self.max_x_seen,target_x)
+        L = self.min_x_seen = min(self.min_x_seen, target_x)
+        R = self.max_x_seen = max(self.max_x_seen, target_x)
         
         current_coverage = self.get_coverage_radius()
         
         if self.x - current_coverage <= self.min_x_seen and self.x + current_coverage >= self.max_x_seen:
             return
         
-        angles = [math.radians(i) for i in range(0, 90, 10)]
-        weights = [1.0] * len(angles)
-        probabilities = [w / sum(weights) for w in weights]
-        p = np.array(probabilities)
-        index = np.random.choice(len(angles), p=p)
-        beta = angles[index]
+        total_weight = sum(self.weights)
+        probabilities = [w / total_weight for w in self.weights]
+        
+        chosen_idx = np.random.choice(len(self.angles), p=probabilities)
+        self.beta = self.angles[chosen_idx]
 
+        apex_x = (self.min_x_seen + self.max_x_seen) / 2.0
+        direction = 1 if apex_x > self.x else -1
         c = math.tan(self.alpha)
-        k = math.tan(beta)
+
+        costs = []
+        
+        chosen_target_x = 0
+        chosen_target_y = 0
 
         
+        for i, angle in enumerate(self.angles):
+            k = math.tan(angle)
+            if direction == 1:
+                y_left = (self.x - L - self.y * k) / (c - k)
+                y_right = (R - self.x + self.y * k) / (c + k)
+            else:
+                y_left = (self.x - L + self.y * k) / (c + k)
+                y_right = (R - self.x - self.y * k) / (c - k)
+            
+            target_y = max(max(y_left, y_right), self.y)
+            target_x_final = self.x + direction * (target_y - self.y) * k
+
+            cost = math.dist((self.x, self.y), (target_x_final, target_y))
+            costs.append(cost)
+
+            if i == chosen_idx:
+                chosen_target_x = target_x_final
+                chosen_target_y = target_y
+
+        max_cost = max(costs)
+        
+        if max_cost > 0:
+            for i in range(len(self.weights)):
+                normalized_cost = costs[i] / max_cost 
+                self.weights[i] = self.weights[i] * math.exp(-self.eta * normalized_cost)
+
+
+        self.move_zigzag(chosen_target_x, chosen_target_y)
+
+
+
+
+
 
 
 
