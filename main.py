@@ -5,7 +5,7 @@ import math
 import random
 
 if __name__ == "__main__":
-    random.seed(17)
+    random.seed(42)
     fig, (ax1, ax2, ax3) = plt.subplots(nrows=1, ncols=3, figsize=(18, 6.5), dpi=300)   
     print("=== test simulation ===")
     field = Environment.Environment()

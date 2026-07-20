@@ -256,17 +256,15 @@ class Drone:
 
 
     def learning_ml_algorithm(self, target_x, n, current_mu, current_sigma):
-        """
-        Алгоритм, который использует нейросеть для предсказания идеального угла beta.
-        """
-
+        # Безопасный расчет CV
+        cv_raw = float(current_sigma) / (float(current_mu) + 1.0)
+        cv_scaled = min(cv_raw, 20.0) / 20.0
         
-        # 1. Формируем тензор входных данных для нейросети
-        # Обязательно переводим числа в float32, как ожидает PyTorch
         x_tensor = torch.tensor([
             float(n) / 1000.0, 
             float(current_mu) / 1000.0, 
-            float(current_sigma) / 1000.0
+            float(current_sigma) / 1000.0,
+            cv_scaled
         ], dtype=torch.float32)
         
         # 2. Просим нейросеть предсказать угол beta
